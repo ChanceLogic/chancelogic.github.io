@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced AI Chat - All Models</title>
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #10a37f;
+            --secondary-color: #f0f0f0;
+            --danger-color: #ff4444;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+        
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            padding: 20px; 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+        
+        .auth-section, .app-section { 
+            margin: 20px 0; 
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .app-section { 
+            display: none; 
+        }
+        
+        #chat { 
+            height: 500px; 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            overflow-y: auto; 
+            margin: 15px 0; 
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .message { 
+            margin: 15px 0; 
+            padding: 12px 15px; 
+            border-radius: 12px; 
+            line-height: 1.5;
+        }
+        
+        .user-message { 
+            background: var(--primary-color); 
+            color: white; 
+            margin-left: 15%; 
+            border-bottom-right-radius: 4px;
+        }
+        
+        .ai-message { 
+            background: var(--secondary-color); 
+            margin-right: 15%; 
+            border-bottom-left-radius: 4px;
+        }
+        
+        .system-message {
+            background: #e9ecef;
+            margin: 10px 5%;
+            text-align: center;
+            font-style: italic;
+            color: #6c757d;
+        }
+        
+        input, button, select { 
+            padding: 12px; 
+            margin: 5px; 
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        
+        button { 
+            background: var(--primary-color); 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .file-attachment-section { 
+            margin: 15px 0; 
+            padding: 15px; 
+            background: #f9f9f9; 
+            border-radius: 8px; 
+            border: 1px dashed #ddd;
+        }
+        
+        .file-list { 
+            margin-top: 10px; 
+        }
+        
+        .file-item { 
+            display: flex; 
+            align-items: center; 
+            margin: 8px 0; 
+            padding: 8px 12px; 
+            background: white; 
+            border-radius: 6px;
+            border: 1px solid #eee;
+        }
+        
+        .file-item button { 
+            background: var(--danger-color); 
+            padding: 5px 10px; 
+            margin-left: auto; 
+            font-size: 12px;
+        }
+        
+        .attachment-indicator { 
+            display: inline-block; 
+            background: #e6f7ff; 
+            border: 1px solid #91d5ff; 
+            padding: 3px 10px; 
+            border-radius: 12px; 
+            margin-left: 10px; 
+            font-size: 0.8em; 
+            color: #1890ff;
+        }
+        
+        .prompt-templates {
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .prompt-btn {
+            background: #6c757d;
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+        
+        .model-info {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-left: 10px;
+        }
+        
+        .chat-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .input-group {
+            display: flex;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        #user-input {
+            flex: 1;
+            padding: 12px;
+        }
+        
+        .send-btn {
+            padding: 12px 20px;
+            white-space: nowrap;
+        }
+        
+        h1, h2, h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .typing-indicator {
+            display: none;
+            padding: 10px 15px;
+            font-style: italic;
+            color: #6c757d;
+        }
+        
+        .clear-chat-btn {
+            background: var(--warning-color);
+            color: #212529;
+        }
+        
+        .model-category {
+            margin: 20px 0 10px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #eee;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .advanced-options {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .option-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 10px 0;
+        }
+        
+        .option-item {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .option-item label {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .model-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: #6c757d;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .chat-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .input-group {
+                min-width: auto;
+            }
+            
+            .user-message, .ai-message {
+                margin-left: 5%;
+                margin-right: 5%;
+            }
+            
+            .option-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="auth-section" class="auth-section">
+        <h2>🔐 Advanced AI Chat Setup</h2>
+        <p><strong>Important:</strong> For authentication to work, you need to:</p>
+        <ol>
+            <li>Run this file through a local server, OR</li>
+            <li>Use the manual token method below</li>
+        </ol>
+        
+        <button onclick="tryAutoAuth()">Try Auto Sign-In</button>
+        
+        <div style="margin-top: 20px; background: #f5f5f5; padding: 15px; border-radius: 5px;">
+            <h3>Manual Token Method (Works in Local Files)</h3>
+            <p>1. Go to <a href="https://developer.puter.com" target="_blank">developer.puter.com</a></p>
+            <p>2. Sign in and press F12 → Console</p>
+            <p>3. Run: <code>localStorage.getItem('puter-auth')</code></p>
+            <p>4. Copy the token and paste here:</p>
+            <input type="text" id="manual-token" placeholder="Paste token here..." style="width: 100%; padding: 10px;">
+            <button onclick="useManualToken()" style="margin-top: 10px;">Use This Token</button>
+        </div>
+    </div>
+
+    <div id="app-section" class="app-section">
+        <div class="header-section">
+            <h2>🚀 Advanced AI Chat</h2>
+            <div class="user-info">
+                <div class="avatar" id="user-avatar">U</div>
+                <span id="username-display">User</span>
+            </div>
+        </div>
+        
+        <div class="chat-controls">
+            <select id="model-select" style="flex: 1; min-width: 250px;">
+                <!-- Options will be populated dynamically -->
+            </select>
+            
+            <button class="clear-chat-btn" onclick="clearChat()">Clear Chat</button>
+        </div>
+        
+        <div class="advanced-options">
+            <h4>Advanced Options</h4>
+            <div class="option-group">
+                <div class="option-item">
+                    <label for="temperature">Temperature: <span id="temp-value">0.7</span></label>
+                    <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7">
+                </div>
+                <div class="option-item">
+                    <label for="max-tokens">Max Tokens: <span id="tokens-value">2048</span></label>
+                    <input type="range" id="max-tokens" min="100" max="4096" step="100" value="2048">
+                </div>
+                <div class="option-item">
+                    <label for="system-prompt">System Prompt:</label>
+                    <input type="text" id="system-prompt" placeholder="Optional system instructions...">
+                </div>
+            </div>
+        </div>
+        
+        <div class="prompt-templates">
+            <button class="prompt-btn" onclick="usePromptTemplate('summarize')">Summarize</button>
+            <button class="prompt-btn" onclick="usePromptTemplate('explain')">Explain</button>
+            <button class="prompt-btn" onclick="usePromptTemplate('translate')">Translate</button>
+            <button class="prompt-btn" onclick="usePromptTemplate('code')">Code Help</button>
+            <button class="prompt-btn" onclick="usePromptTemplate('creative')">Creative Writing</button>
+            <button class="prompt-btn" onclick="usePromptTemplate('analyze')">Analyze</button>
+            <button class="prompt-btn" onclick="usePromptTemplate('brainstorm')">Brainstorm</button>
+            <button class="prompt-btn" onclick="usePromptTemplate('rewrite')">Rewrite</button>
+        </div>
+        
+        <div id="chat"></div>
+        <div id="typing-indicator" class="typing-indicator">AI is typing...</div>
+        
+        <div class="file-attachment-section">
+            <strong>Attach Files:</strong>
+            <input type="file" id="file-input" multiple style="margin: 10px 0; display: block;">
+            <div id="file-list" class="file-list"></div>
+        </div>
+        
+        <div class="chat-controls">
+            <div class="input-group">
+                <input type="text" id="user-input" placeholder="Ask AI anything...">
+                <button class="send-btn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+        
+        <button onclick="signOut()" style="background: var(--danger-color); margin-top: 10px;">Sign Out</button>
+    </div>
+
+    <script>
+        // Store attached files
+        let attachedFiles = [];
+        let currentModel = 'claude-opus';
+        
+        // Complete model list from Puter.com documentation
+        const aiModels = [
+            // Anthropic Models
+            { id: 'claude-opus', name: 'Claude 3 Opus', category: 'Anthropic', description: 'Most powerful Claude model for highly complex tasks' },
+            { id: 'claude-sonnet', name: 'Claude 3 Sonnet', category: 'Anthropic', description: 'Balanced Claude model for enterprise workloads' },
+            { id: 'claude-haiku', name: 'Claude 3 Haiku', category: 'Anthropic', description: 'Fastest and most cost-effective Claude model' },
+            { id: 'claude-3-5-sonnet', name: 'Claude 3.5 Sonnet', category: 'Anthropic', description: 'Latest Claude model with improved performance' },
+            
+            // OpenAI Models
+            { id: 'gpt-4o', name: 'GPT-4o', category: 'OpenAI', description: 'OpenAI\'s flagship multimodal model' },
+            { id: 'gpt-4o-mini', name: 'GPT-4o Mini', category: 'OpenAI', description: 'OpenAI\'s efficient and cost-effective model' },
+            { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', category: 'OpenAI', description: 'Enhanced GPT-4 with larger context window' },
+            { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', category: 'OpenAI', description: 'Fast and capable model for everyday tasks' },
+            
+            // Meta Models
+            { id: 'llama-3-8b', name: 'Llama 3 8B', category: 'Meta', description: 'Meta\'s 8B parameter model - good balance' },
+            { id: 'llama-3-70b', name: 'Llama 3 70B', category: 'Meta', description: 'Meta\'s 70B parameter high-capability model' },
+            { id: 'llama-3-1-8b', name: 'Llama 3.1 8B', category: 'Meta', description: 'Latest Llama 3.1 8B model' },
+            { id: 'llama-3-1-70b', name: 'Llama 3.1 70B', category: 'Meta', description: 'Latest Llama 3.1 70B model' },
+            { id: 'llama-3-1-405b', name: 'Llama 3.1 405B', category: 'Meta', description: 'Massive 405B parameter model' },
+            { id: 'llama-3-2-1b', name: 'Llama 3.2 1B', category: 'Meta', description: 'Lightweight 1B parameter model' },
+            { id: 'llama-3-2-3b', name: 'Llama 3.2 3B', category: 'Meta', description: 'Efficient 3B parameter model' },
+            
+            // Mistral Models
+            { id: 'mistral-7b', name: 'Mistral 7B', category: 'Mistral', description: 'Mistral\'s efficient 7B parameter model' },
+            { id: 'mixtral-8x7b', name: 'Mixtral 8x7B', category: 'Mistral', description: 'Mixture of experts with strong performance' },
+            { id: 'mixtral-8x22b', name: 'Mixtral 8x22B', category: 'Mistral', description: 'Larger mixture of experts model' },
+            { id: 'codestral', name: 'Codestral', category: 'Mistral', description: 'Mistral\'s specialized coding model' },
+            
+            // Google Models
+            { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', category: 'Google', description: 'Google\'s advanced multimodal model' },
+            { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', category: 'Google', description: 'Google\'s fastest and most efficient model' },
+            
+            // Microsoft Models
+            { id: 'phi-3-mini', name: 'Phi-3 Mini', category: 'Microsoft', description: 'Microsoft\'s small but capable model' },
+            { id: 'phi-3-medium', name: 'Phi-3 Medium', category: 'Microsoft', description: 'Microsoft\'s medium-sized model' },
+            
+            // Other Models
+            { id: 'qwen-2.5-7b', name: 'Qwen 2.5 7B', category: 'Other', description: 'Alibaba\'s 7B parameter model' },
+            { id: 'qwen-2.5-72b', name: 'Qwen 2.5 72B', category: 'Other', description: 'Alibaba\'s 72B parameter model' },
+            { id: 'dbrx', name: 'DBRX', category: 'Other', description: 'Databricks\' advanced model' },
+            { id: 'granite-3-8b', name: 'Granite 3 8B', category: 'Other', description: 'IBM\'s 8B parameter model' }
+        ];
+        
+        // Prompt templates
+        const promptTemplates = {
+            summarize: "Please provide a concise summary of the following:",
+            explain: "Can you explain this in simple terms?",
+            translate: "Translate the following text to English:",
+            code: "Help me with this code. Please explain and provide improvements:",
+            creative: "Write a creative piece about:",
+            analyze: "Please analyze the following and provide insights:",
+            brainstorm: "Let's brainstorm ideas about:",
+            rewrite: "Please rewrite this to be more clear and concise:"
+        };
+        
+        // Try automatic authentication first
+        async function tryAutoAuth() {
+            try {
+                const isSignedIn = await puter.auth.isSignedIn();
+                if (isSignedIn) {
+                    const user = await puter.auth.getUser();
+                    showApp(user);
+                } else {
+                    // Try to sign in - this might fail in local files
+                    await puter.auth.signIn();
+                    const user = await puter.auth.getUser();
+                    showApp(user);
+                }
+            } catch (error) {
+                console.error('Auto auth failed:', error);
+                alert('Auto authentication failed (common in local files). Use the manual token method below.');
+            }
+        }
+
+        // Manual token method (works in local files)
+        async function useManualToken() {
+            const token = document.getElementById('manual-token').value.trim();
+            if (!token) {
+                alert('Please paste a token first');
+                return;
+            }
+
+            try {
+                // Store token manually
+                localStorage.setItem('puter-auth', token);
+                
+                // Verify it works
+                const isSignedIn = await puter.auth.isSignedIn();
+                if (isSignedIn) {
+                    const user = await puter.auth.getUser();
+                    showApp(user);
+                } else {
+                    throw new Error('Token invalid');
+                }
+            } catch (error) {
+                alert('Invalid token. Please check you copied it correctly.');
+            }
+        }
+
+        function showApp(user) {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('app-section').style.display = 'block';
+            document.getElementById('username-display').textContent = user.username;
+            document.getElementById('user-avatar').textContent = user.username.charAt(0).toUpperCase();
+            
+            // Populate model select with categorized options
+            populateModelSelect();
+            
+            // Set up advanced options
+            setupAdvancedOptions();
+            
+            addToChat('System', `✅ Signed in as ${user.username}. You now have access to ${aiModels.length} AI models!`, 'system');
+        }
+
+        // Populate model select with categorized options
+        function populateModelSelect() {
+            const modelSelect = document.getElementById('model-select');
+            modelSelect.innerHTML = '';
+            
+            // Group models by category
+            const categories = {};
+            aiModels.forEach(model => {
+                if (!categories[model.category]) {
+                    categories[model.category] = [];
+                }
+                categories[model.category].push(model);
+            });
+            
+            // Add options by category
+            Object.keys(categories).forEach(category => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = `${category} Models`;
+                
+                categories[category].forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.id;
+                    option.textContent = `${model.name} - ${model.description}`;
+                    optgroup.appendChild(option);
+                });
+                
+                modelSelect.appendChild(optgroup);
+            });
+            
+            // Set default value
+            modelSelect.value = 'claude-opus';
+            currentModel = 'claude-opus';
+        }
+
+        // Set up advanced options
+        function setupAdvancedOptions() {
+            // Temperature slider
+            const tempSlider = document.getElementById('temperature');
+            const tempValue = document.getElementById('temp-value');
+            
+            tempSlider.addEventListener('input', function() {
+                tempValue.textContent = this.value;
+            });
+            
+            // Max tokens slider
+            const tokensSlider = document.getElementById('max-tokens');
+            const tokensValue = document.getElementById('tokens-value');
+            
+            tokensSlider.addEventListener('input', function() {
+                tokensValue.textContent = this.value;
+            });
+        }
+
+        // Handle file selection
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            
+            files.forEach(file => {
+                // Check if file already exists
+                if (attachedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                    return;
+                }
+                
+                // Add to attached files list
+                attachedFiles.push(file);
+                
+                // Display file in the file list
+                updateFileList();
+            });
+            
+            // Reset file input
+            e.target.value = '';
+        });
+
+        // Remove file from attachments
+        function removeFile(fileName, fileSize) {
+            attachedFiles = attachedFiles.filter(file => !(file.name === fileName && file.size === fileSize));
+            
+            // Update UI
+            updateFileList();
+        }
+
+        // Update the file list display
+        function updateFileList() {
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = '';
+            
+            if (attachedFiles.length === 0) {
+                fileList.innerHTML = '<div style="color: #6c757d; font-style: italic;">No files attached</div>';
+                return;
+            }
+            
+            attachedFiles.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>${file.name} (${formatFileSize(file.size)})</span>
+                    <button onclick="removeFile('${file.name}', ${file.size})">Remove</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        // Format file size for display
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Use a prompt template
+        function usePromptTemplate(templateKey) {
+            const input = document.getElementById('user-input');
+            if (input.value.trim() === '') {
+                input.value = promptTemplates[templateKey] + ' ';
+            } else {
+                input.value = promptTemplates[templateKey] + ' ' + input.value;
+            }
+            input.focus();
+        }
+        
+        // Clear chat history
+        function clearChat() {
+            if (confirm('Are you sure you want to clear the chat history?')) {
+                document.getElementById('chat').innerHTML = '';
+                addToChat('System', 'Chat history cleared', 'system');
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            
+            // Don't send if no message and no files
+            if (!message && attachedFiles.length === 0) {
+                alert('Please enter a message or attach files');
+                return;
+            }
+
+            // Display user message with file attachments indicator
+            let displayMessage = message;
+            if (attachedFiles.length > 0) {
+                displayMessage += ` <span class="attachment-indicator">${attachedFiles.length} file(s) attached</span>`;
+            }
+            addToChat('You', displayMessage, 'user');
+            
+            // Get selected model and options
+            currentModel = document.getElementById('model-select').value;
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const maxTokens = parseInt(document.getElementById('max-tokens').value);
+            const systemPrompt = document.getElementById('system-prompt').value.trim();
+            
+            // Clear input and files
+            input.value = '';
+            const filesToSend = [...attachedFiles];
+            attachedFiles = [];
+            updateFileList();
+            
+            // Show typing indicator
+            document.getElementById('typing-indicator').style.display = 'block';
+
+            try {
+                // Prepare message with files if any
+                let fullMessage = message;
+                if (filesToSend.length > 0) {
+                    fullMessage += "\n\nAttached files:";
+                    for (const file of filesToSend) {
+                        fullMessage += `\n- ${file.name} (${file.type || 'Unknown type'}, ${formatFileSize(file.size)})`;
+                    }
+                    
+                    // Add instruction about files
+                    fullMessage += "\n\nPlease consider these files in your response.";
+                }
+                
+                // Prepare request options
+                const requestOptions = {
+                    model: currentModel,
+                    stream: true
+                };
+                
+                // Add optional parameters if specified
+                if (temperature !== 0.7) {
+                    requestOptions.temperature = temperature;
+                }
+                
+                if (maxTokens !== 2048) {
+                    requestOptions.max_tokens = maxTokens;
+                }
+                
+                if (systemPrompt) {
+                    requestOptions.system = systemPrompt;
+                }
+                
+                const response = await puter.ai.chat(fullMessage, requestOptions);
+
+                let fullResponse = '';
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'message ai-message';
+                document.getElementById('chat').appendChild(aiDiv);
+
+                for await (const part of response) {
+                    if (part?.text) {
+                        fullResponse += part.text;
+                        // Use marked to render markdown
+                        aiDiv.innerHTML = `<strong>${getModelDisplayName(currentModel)}:</strong> ` + marked.parse(fullResponse);
+                        document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+                    }
+                }
+                
+                // Add model stats to the message
+                const statsDiv = document.createElement('div');
+                statsDiv.className = 'model-stats';
+                statsDiv.innerHTML = `
+                    <span>Model: ${getModelDisplayName(currentModel)}</span>
+                    <span>Temperature: ${temperature}</span>
+                    <span>Max Tokens: ${maxTokens}</span>
+                `;
+                aiDiv.appendChild(statsDiv);
+                
+            } catch (error) {
+                addToChat('System', '❌ Error: ' + error.message, 'system');
+                console.error('AI Request failed:', error);
+            } finally {
+                // Hide typing indicator
+                document.getElementById('typing-indicator').style.display = 'none';
+            }
+        }
+        
+        // Get display name for model
+        function getModelDisplayName(modelId) {
+            const model = aiModels.find(m => m.id === modelId);
+            return model ? model.name : modelId;
+        }
+
+        function addToChat(sender, message, type = 'user') {
+            const chat = document.getElementById('chat');
+            const div = document.createElement('div');
+            
+            if (type === 'system') {
+                div.className = 'message system-message';
+            } else {
+                div.className = `message ${sender === 'You' ? 'user-message' : 'ai-message'}`;
+            }
+            
+            div.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        async function signOut() {
+            try {
+                localStorage.removeItem('puter-auth');
+                await puter.auth.signOut();
+            } catch (error) {}
+            location.reload();
+        }
+
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Check if already signed in on load
+        async function checkExistingAuth() {
+            try {
+                const isSignedIn = await puter.auth.isSignedIn();
+                if (isSignedIn) {
+                    const user = await puter.auth.getUser();
+                    showApp(user);
+                }
+            } catch (error) {}
+        }
+        
+        // Initialize file list
+        updateFileList();
+        checkExistingAuth();
+    </script>
+</body>
+</html>
