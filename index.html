@@ -1,15 +1,44 @@
-<script src="https://js.puter.com/v2/"></script>
-<script>
-async function testArrayParameter() {
-    try {
-        const test = await puter.ai.chat([{role: "user", content: "test"}], {
-            model: 'gpt-4o',
-            stream: true
-        });
-        console.log('SUCCESS - accepts array');
-    } catch (error) {
-        console.log('ERROR:', error.message);
-    }
-}
-testArrayParameter();
-</script>
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://js.puter.com/v2/"></script>
+</head>
+<body>
+    <div id="results"></div>
+    <script>
+        async function runTests() {
+            const results = document.getElementById('results');
+            
+            // Test 1: String parameter (should work)
+            try {
+                const test1 = await puter.ai.chat("Hello, test message", {
+                    model: 'gpt-4o',
+                    stream: false
+                });
+                results.innerHTML += `<p style="color:green">✓ Test 1 PASS: String parameter works</p>`;
+                console.log('String test:', test1);
+            } catch (error) {
+                results.innerHTML += `<p style="color:red">✗ Test 1 FAIL: ${error.message}</p>`;
+            }
+
+            // Test 2: Array parameter (likely fails)
+            try {
+                const test2 = await puter.ai.chat([{role: "user", content: "test"}], {
+                    model: 'gpt-4o', 
+                    stream: false
+                });
+                results.innerHTML += `<p style="color:green">✓ Test 2 PASS: Array parameter works</p>`;
+                console.log('Array test:', test2);
+            } catch (error) {
+                results.innerHTML += `<p style="color:red">✗ Test 2 FAIL: ${error.message}</p>`;
+            }
+
+            // Test 3: Check available methods
+            results.innerHTML += `<p>Available puter.ai methods: ${Object.keys(puter.ai).join(', ')}</p>`;
+            console.log('Puter AI methods:', Object.keys(puter.ai));
+        }
+
+        runTests();
+    </script>
+</body>
+</html>
