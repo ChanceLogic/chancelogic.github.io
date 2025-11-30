@@ -480,9 +480,9 @@
                 const selectedModel = document.getElementById('modelSelect').value;
                 
                 const stream = await puter.ai.chat(currentConversation.messages, {
-    model: selectedModel, 
-    stream: true
-});
+                    model: selectedModel, 
+                    stream: true
+            });
                 
                 const assistantMessage = {
                     role: 'assistant',
