@@ -513,9 +513,8 @@
                 }));
                 
                 // Call Puter AI
-                const response = await puter.ai.chat.completions.create({
+                const stream = await puter.ai.chat(currentConversation.messages, {
                     model: selectedModel,
-                    messages: apiMessages,
                     stream: true
                 });
                 
@@ -531,7 +530,7 @@
                 // Handle streaming response
                 let fullContent = '';
                 for await (const chunk of response) {
-                    const content = chunk.choices[0]?.delta?.content || '';
+                    const content = chunk?.text || '';
                     if (content) {
                         fullContent += content;
                         assistantMessage.content = fullContent;
