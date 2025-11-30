@@ -6,574 +6,558 @@
     <title>DeepSeek-like Chat</title>
     <script src="https://js.puter.com/v2/"></script>
     <style>
-001: * {
-002:     margin: 0;
-003:     padding: 0;
-004:     box-sizing: border-box;
-005: }
-006: 
-007: :root {
-008:     --sidebar-width: 260px;
-009:     --primary-color: #10a37f;
-010:     --bg-color: #ffffff;
-011:     --sidebar-bg: #f7f7f8;
-012:     --border-color: #e5e5e7;
-013:     --text-primary: #374151;
-014:     --text-secondary: #6b7280;
-015: }
-016: 
-017: body.dark {
-018:     --bg-color: #343541;
-019:     --sidebar-bg: #202123;
-020:     --border-color: #4a4b57;
-021:     --text-primary: #ececf1;
-022:     --text-secondary: #acacbe;
-023: }
-024: 
-025: body {
-026:     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-027:     background-color: var(--bg-color);
-028:     color: var(--text-primary);
-029:     height: 100vh;
-030:     overflow: hidden;
-031: }
-032: 
-033: .app-container {
-034:     display: flex;
-035:     height: 100vh;
-036: }
-037: 
-038: /* Sidebar Styles */
-039: .sidebar {
-040:     width: var(--sidebar-width);
-041:     background-color: var(--sidebar-bg);
-042:     border-right: 1px solid var(--border-color);
-043:     display: flex;
-044:     flex-direction: column;
-045:     height: 100%;
-046: }
-047: 
-048: .new-chat-btn {
-049:     margin: 8px;
-050:     padding: 12px;
-051:     border: 1px solid var(--border-color);
-052:     border-radius: 6px;
-053:     background: var(--bg-color);
-054:     color: var(--text-primary);
-055:     cursor: pointer;
-056:     display: flex;
-057:     align-items: center;
-058:     gap: 8px;
-059: }
-060: 
-061: .new-chat-btn:hover {
-062:     background-color: var(--border-color);
-063: }
-064: 
-065: .conversation-list {
-066:     flex: 1;
-067:     overflow-y: auto;
-068:     padding: 8px;
-069: }
-070: 
-071: .conversation-item {
-072:     padding: 12px;
-073:     border-radius: 6px;
-074:     cursor: pointer;
-075:     margin-bottom: 4px;
-076:     font-size: 14px;
-077:     white-space: nowrap;
-078:     overflow: hidden;
-079:     text-overflow: ellipsis;
-080: }
-081: 
-082: .conversation-item:hover {
-083:     background-color: var(--border-color);
-084: }
-085: 
-086: .conversation-item.active {
-087:     background-color: var(--primary-color);
-088:     color: white;
-089: }
-090: 
-091: /* Main Chat Area */
-092: .main-content {
-093:     flex: 1;
-094:     display: flex;
-095:     flex-direction: column;
-096:     height: 100%;
-097: }
-098: 
-099: .model-selector {
-100:     padding: 12px 16px;
-101:     border-bottom: 1px solid var(--border-color);
-102:     display: flex;
-103:     align-items: center;
-104:     gap: 12px;
-105: }
-106: 
-107: .model-dropdown {
-108:     padding: 6px 12px;
-109:     border: 1px solid var(--border-color);
-110:     border-radius: 4px;
-111:     background: var(--bg-color);
-112:     color: var(--text-primary);
-113: }
-114: 
-115: .chat-container {
-116:     flex: 1;
-117:     overflow-y: auto;
-118:     padding: 20px;
-119:     display: flex;
-120:     flex-direction: column;
-121:     gap: 20px;
-122: }
-123: 
-124: .message {
-125:     display: flex;
-126:     gap: 16px;
-127:     max-width: 800px;
-128:     margin: 0 auto;
-129:     width: 100%;
-130: }
-131: 
-132: .message.user {
-133:     margin-left: auto;
-134:     flex-direction: row-reverse;
-135: }
-136: 
-137: .avatar {
-138:     width: 32px;
-139:     height: 32px;
-140:     border-radius: 4px;
-141:     display: flex;
-142:     align-items: center;
-143:     justify-content: center;
-144:     font-weight: bold;
-145:     background-color: var(--primary-color);
-146:     color: white;
-147: }
-148: 
-149: .message.user .avatar {
-150:     background-color: #10a37f;
-151: }
-152: 
-153: .message.assistant .avatar {
-154:     background-color: #9855d4;
-155: }
-156: 
-157: .message-content {
-158:     flex: 1;
-159:     padding: 16px;
-160:     border-radius: 8px;
-161:     background-color: var(--sidebar-bg);
-162:     line-height: 1.5;
-163: }
-164: 
-165: .message.user .message-content {
-166:     background-color: var(--primary-color);
-167:     color: white;
-168: }
-169: 
-170: /* Input Area */
-171: .input-container {
-172:     padding: 20px;
-173:     border-top: 1px solid var(--border-color);
-174: }
-175: 
-176: .input-box {
-177:     max-width: 800px;
-178:     margin: 0 auto;
-179:     position: relative;
-180: }
-181: 
-182: .message-input {
-183:     width: 100%;
-184:     padding: 12px 45px 12px 16px;
-185:     border: 1px solid var(--border-color);
-186:     border-radius: 8px;
-187:     background-color: var(--bg-color);
-188:     color: var(--text-primary);
-189:     resize: none;
-190:     min-height: 120px;
-191:     max-height: 300px;
-192:     font-family: inherit;
-193: }
-194: 
-195: .send-button {
-196:     position: absolute;
-197:     right: 12px;
-198:     bottom: 12px;
-199:     background: var(--primary-color);
-200:     color: white;
-201:     border: none;
-202:     border-radius: 4px;
-203:     width: 24px;
-204:     height: 24px;
-205:     cursor: pointer;
-206:     display: flex;
-207:     align-items: center;
-208:     justify-content: center;
-209: }
-210: 
-211: .send-button:disabled {
-212:     opacity: 0.5;
-213:     cursor: not-allowed;
-214: }
-215: 
-216: .typing-indicator {
-217:     display: none;
-218:     padding: 16px;
-219:     background-color: var(--sidebar-bg);
-220:     border-radius: 8px;
-221:     max-width: 800px;
-222:     margin: 0 auto;
-223: }
-224: 
-225: .typing-dots {
-226:     display: flex;
-227:     gap: 4px;
-228: }
-229: 
-230: .typing-dot {
-231:     width: 8px;
-232:     height: 8px;
-233:     background-color: var(--text-secondary);
-234:     border-radius: 50%;
-235:     animation: typingAnimation 1.4s infinite ease-in-out;
-236: }
-237: 
-238: .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-239: .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-240: 
-241: @keyframes typingAnimation {
-242:     0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-243:     40% { transform: scale(1); opacity: 1; }
-244: }
-245:     </style>
-246: </head>
-247: <body>
-248:     <div class="app-container">
-249:         <!-- Sidebar -->
-250:         <div class="sidebar">
-251:             <button class="new-chat-btn" onclick="startNewChat()">
-252:                 <span>+</span> New Chat
-253:             </button>
-254:             <div class="conversation-list" id="conversationList">
-255:                 <!-- Conversations will be loaded here -->
-256:             </div>
-257:         </div>
-258: 
-259:         <!-- Main Content -->
-260:         <div class="main-content">
-261:             <div class="model-selector">
-262:                 <select class="model-dropdown" id="modelSelect">
-263:                     <option value="gpt-4o">GPT-4o</option>
-264:                     <option value="gpt-4">GPT-4</option>
-265:                 </select>
-266:             </div>
-267: 
-268:             <div class="chat-container" id="chatContainer">
-269:                 <!-- Messages will appear here -->
-270:             </div>
-271: 
-272:             <div class="typing-indicator" id="typingIndicator">
-273:                 <div class="typing-dots">
-274:                     <div class="typing-dot"></div>
-275:                     <div class="typing-dot"></div>
-276:                     <div class="typing-dot"></div>
-277:                 </div>
-278:             </div>
-279: 
-280:             <div class="input-container">
-281:                 <div class="input-box">
-282:                     <textarea 
-283:                         class="message-input" 
-284:                         id="messageInput"
-285:                         placeholder="Message DeepSeek..."
-286:                         rows="5"
-287:                         onkeydown="handleInputKeydown(event)"
-288:                     ></textarea>
-289:                     <button class="send-button" onclick="sendMessage()" id="sendButton">
-290:                         ↑
-291:                     </button>
-292:                 </div>
-293:             </div>
-294:         </div>
-295:     </div>
-296: 
-297:     <script>
-298: #GLOBAL_STATE
-299: 001: let currentConversation = null;
-300: 002: let conversations = [];
-301: 003: let availableModels = [];
-302: 
-303: #INITIALIZATION
-304: 004: async function initializeApp() {
-305: 005:     try {
-306: 006:         await loadModels();
-307: 007:         await loadConversations();
-308: 008:         
-309: 009:         if (conversations.length === 0) {
-310: 010:             await startNewChat();
-311: 011:         } else {
-312: 012:             await loadConversation(conversations[0].id);
-313: 013:         }
-314: 014:         
-315: 015:         setupEventListeners();
-316: 016:     } catch (error) {
-317: 017:         console.error('Error initializing app:', error);
-318: 018:     }
-319: 019: }
-320: 
-321: #MODEL_LOADING
-322: 020: async function loadModels() {
-323: 021:     try {
-324: 022:         const response = await puter.ai.models.list();
-325: 023:         availableModels = response.data;
-326: 024:         
-327: 025:         const modelSelect = document.getElementById('modelSelect');
-328: 026:         modelSelect.innerHTML = '';
-329: 027:         
-330: 028:         availableModels.forEach(model => {
-331: 029:             const option = document.createElement('option');
-332: 030:             option.value = model.id;
-333: 031:             option.textContent = model.id;
-334: 032:             modelSelect.appendChild(option);
-335: 033:         });
-336: 034:     } catch (error) {
-337: 035:         console.error('Error loading models:', error);
-338: 036:     }
-339: 037: }
-340: 
-341: #STORAGE_HANDLING
-342: 038: async function loadConversations() {
-343: 039:     try {
-344: 040:         conversations = await puter.kv.get('conversations') || [];
-345: 041:         renderConversationList();
-346: 042:     } catch (error) {
-347: 043:         console.error('Error loading conversations:', error);
-348: 044:     }
-349: 045: }
-350: 
-351: 046: async function saveConversations() {
-352: 047:     try {
-353: 048:         await puter.kv.set('conversations', conversations);
-354: 049:     } catch (error) {
-355: 050:         console.error('Error saving conversations:', error);
-356: 051:     }
-357: 052: }
-358: 
-359: #CONVERSATION_MANAGEMENT
-360: 053: async function startNewChat() {
-361: 054:     const newConversation = {
-362: 055:         id: Date.now().toString(),
-363: 056:         title: 'New Chat',
-364: 057:         messages: [],
-365: 058:         createdAt: new Date().toISOString()
-366: 059:     };
-367: 060:     
-368: 061:     conversations.unshift(newConversation);
-369: 062:     await saveConversations();
-370: 063:     await loadConversation(newConversation.id);
-371: 064:     renderConversationList();
-372: 065:     
-373: 066:     document.getElementById('messageInput').focus();
-374: 067: }
-375: 
-376: 068: async function loadConversation(conversationId) {
-377: 069:     currentConversation = conversations.find(conv => conv.id === conversationId);
-378: 070:     if (!currentConversation) return;
-379: 071:     
-380: 072:     renderChatMessages();
-381: 073:     renderConversationList();
-382: 074:     
-383: 075:     if (currentConversation.title === 'New Chat' && currentConversation.messages.length > 0) {
-384: 076:         const firstMessage = currentConversation.messages[0];
-385: 077:         if (firstMessage.role === 'user') {
-386: 078:             currentConversation.title = firstMessage.content.substring(0, 30) + (firstMessage.content.length > 30 ? '...' : '');
-387: 079:             await saveConversations();
-388: 080:             renderConversationList();
-389: 081:         }
-390: 082:     }
-391: 083: }
-392: 
-393: #RENDERING_LOGIC
-394: 084: function renderConversationList() {
-395: 085:     const listElement = document.getElementById('conversationList');
-396: 086:     listElement.innerHTML = '';
-397: 087:     
-398: 088:     conversations.forEach(conversation => {
-399: 089:         const item = document.createElement('div');
-400: 090:         item.className = `conversation-item ${currentConversation?.id === conversation.id ? 'active' : ''}`;
-401: 091:         item.textContent = conversation.title;
-402: 092:         item.onclick = () => loadConversation(conversation.id);
-403: 093:         listElement.appendChild(item);
-404: 094:     });
-405: 095: }
-406: 
-407: 096: function renderChatMessages() {
-408: 097:     const chatContainer = document.getElementById('chatContainer');
-409: 098:     chatContainer.innerHTML = '';
-410: 099:     
-411: 100:     if (!currentConversation || currentConversation.messages.length === 0) {
-412: 101:         const welcomeMessage = document.createElement('div');
-413: 102:         welcomeMessage.style.textAlign = 'center';
-414: 103:         welcomeMessage.style.padding = '40px 20px';
-415: 104:         welcomeMessage.style.color = 'var(--text-secondary)';
-416: 105:         welcomeMessage.innerHTML = `
-417: 106:             <h3>Welcome to DeepSeek-like Chat</h3>
-418: 107:             <p>Start a conversation by typing a message below.</p>
-419: 108:         `;
-420: 109:         chatContainer.appendChild(welcomeMessage);
-421: 110:         return;
-422: 111:     }
-423: 112:     
-424: 113:     currentConversation.messages.forEach(message => {
-425: 114:         const messageElement = createMessageElement(message);
-426: 115:         chatContainer.appendChild(messageElement);
-427: 116:     });
-428: 117:     
-429: 118:     scrollToBottom();
-430: 119: }
-431: 
-432: 120: function createMessageElement(message) {
-433: 121:     const messageDiv = document.createElement('div');
-434: 122:     messageDiv.className = `message ${message.role}`;
-435: 123:     
-436: 124:     const avatar = document.createElement('div');
-437: 125:     avatar.className = 'avatar';
-438: 126:     avatar.textContent = message.role === 'user' ? 'Y' : 'AI';
-439: 127:     
-440: 128:     const content = document.createElement('div');
-441: 129:     content.className = 'message-content';
-442: 130:     content.innerHTML = formatMessageContent(message.content);
-443: 131:     
-444: 132:     messageDiv.appendChild(avatar);
-445: 133:     messageDiv.appendChild(content);
-446: 134:     
-447: 135:     return messageDiv;
-448: 136: }
-449: 
-450: 137: function formatMessageContent(content) {
-451: 138:     return content
-452: 139:         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-453: 140:         .replace(/\*(.*?)\*/g, '<em>$1</em>')
-454: 141:         .replace(/`(.*?)`/g, '<code>$1</code>')
-455: 142:         .replace(/\n/g, '<br>');
-456: 143: }
-457: 
-458: #CHAT_STREAMING_LOGIC
-459: 144: async function sendMessage() {
-460: 145:     const input = document.getElementById('messageInput');
-461: 146:     const message = input.value.trim();
-462: 147:     
-463: 148:     if (!message) return;
-464: 149:     
-465: 150:     input.value = '';
-466: 151:     adjustTextareaHeight(input);
-467: 152:     
-468: 153:     const userMessage = {
-469: 154:         role: 'user',
-470: 155:         content: message,
-471: 156:         timestamp: new Date().toISOString()
-472: 157:     };
-473: 158:     
-474: 159:     currentConversation.messages.push(userMessage);
-475: 160:     renderChatMessages();
-476: 161:     
-477: 162:     const typingIndicator = document.getElementById('typingIndicator');
-478: 163:     typingIndicator.style.display = 'block';
-479: 164:     scrollToBottom();
-480: 165:     
-481: 166:     try {
-482: 167:         const selectedModel = document.getElementById('modelSelect').value;
-483: 168:         
-484: 169:         const stream = await puter.ai.chat(message, {
-485: 170:             model: selectedModel,
-486: 171:             stream: true
-487: 172:         });
-488: 173:         
-489: 174:         const assistantMessage = {
-490: 175:             role: 'assistant',
-491: 176:             content: '',
-492: 177:             timestamp: new Date().toISOString()
-493: 178:         };
-494: 179:         
-495: 180:         currentConversation.messages.push(assistantMessage);
-496: 181:         
-497: 182:         let fullContent = '';
-498: 183:         for await (const chunk of stream) {
-499: 184:             const content = chunk?.text || '';
-500: 185:             if (content) {
-501: 186:                 fullContent += content;
-502: 187:                 assistantMessage.content = fullContent;
-503: 188:                 
-504: 189:                 const chatContainer = document.getElementById('chatContainer');
-505: 190:                 const lastMessage = chatContainer.lastChild;
-506: 191:                 if (lastMessage && lastMessage.classList.contains('assistant')) {
-507: 192:                     lastMessage.querySelector('.message-content').innerHTML = formatMessageContent(fullContent);
-508: 193:                 } else {
-509: 194:                     renderChatMessages();
-510: 195:                 }
-511: 196:                 
-512: 197:                 scrollToBottom();
-513: 198:             }
-514: 199:         }
-515: 200:         
-516: 201:         await saveConversations();
-517: 202:         renderConversationList();
-518: 203:         
-519: 204:     } catch (error) {
-520: 205:         console.error('Error sending message:', error);
-521: 206:         
-522: 207:         const errorMessage = {
-523: 208:             role: 'assistant',
-524: 209:             content: 'Sorry, I encountered an error. Please try again.',
-525: 210:             timestamp: new Date().toISOString(),
-526: 211:             isError: true
-527: 212:         };
-528: 213:         
-529: 214:         currentConversation.messages.push(errorMessage);
-530: 215:         renderChatMessages();
-531: 216:     } finally {
-532: 217:         typingIndicator.style.display = 'none';
-533: 218:     }
-534: 219: }
-535: 
-536: #UTILITY_FUNCTIONS
-537: 220: function handleInputKeydown(event) {
-538: 221:     if (event.key === 'Enter' && !event.shiftKey) {
-539: 222:         event.preventDefault();
-540: 223:         sendMessage();
-541: 224:     }
-542: 225:     
-543: 226:     setTimeout(() => adjustTextareaHeight(event.target), 0);
-544: 227: }
-545: 
-546: 228: function adjustTextareaHeight(textarea) {
-547: 229:     textarea.style.height = 'auto';
-548: 230:     textarea.style.height = Math.min(textarea.scrollHeight, 300) + 'px';
-549: 231: }
-550: 
-551: 232: function scrollToBottom() {
-552: 233:     const chatContainer = document.getElementById('chatContainer');
-553: 234:     chatContainer.scrollTop = chatContainer.scrollHeight;
-554: 235: }
-555: 
-556: 236: function setupEventListeners() {
-557: 237:     const input = document.getElementById('messageInput');
-558: 238:     
-559: 239:     input.addEventListener('input', () => {
-560: 240:         const sendButton = document.getElementById('sendButton');
-561: 241:         sendButton.disabled = !input.value.trim();
-562: 242:     });
-563: 243:     
-564: 244:     document.getElementById('sendButton').disabled = true;
-565: 245: }
-566: 
-567: #APP_STARTUP
-568: 246: document.addEventListener('DOMContentLoaded', initializeApp);
-569:     </script>
-570: </body>
-571: </html>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --sidebar-width: 260px;
+            --primary-color: #10a37f;
+            --bg-color: #ffffff;
+            --sidebar-bg: #f7f7f8;
+            --border-color: #e5e5e7;
+            --text-primary: #374151;
+            --text-secondary: #6b7280;
+        }
+
+        body.dark {
+            --bg-color: #343541;
+            --sidebar-bg: #202123;
+            --border-color: #4a4b57;
+            --text-primary: #ececf1;
+            --text-secondary: #acacbe;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .new-chat-btn {
+            margin: 8px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .new-chat-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        .conversation-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .conversation-item {
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-item:hover {
+            background-color: var(--border-color);
+        }
+
+        .conversation-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .model-selector {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .model-dropdown {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            display: flex;
+            gap: 16px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .message.user {
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .message.user .avatar {
+            background-color: #10a37f;
+        }
+
+        .message.assistant .avatar {
+            background-color: #9855d4;
+        }
+
+        .message-content {
+            flex: 1;
+            padding: 16px;
+            border-radius: 8px;
+            background-color: var(--sidebar-bg);
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .input-container {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .input-box {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .message-input {
+            width: 100%;
+            padding: 12px 45px 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            resize: none;
+            min-height: 120px;
+            max-height: 300px;
+            font-family: inherit;
+        }
+
+        .send-button {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 16px;
+            background-color: var(--sidebar-bg);
+            border-radius: 8px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--text-secondary);
+            border-radius: 50%;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typingAnimation {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <button class="new-chat-btn" onclick="startNewChat()">
+                <span>+</span> New Chat
+            </button>
+            <div class="conversation-list" id="conversationList">
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="model-selector">
+                <select class="model-dropdown" id="modelSelect">
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-4">GPT-4</option>
+                </select>
+            </div>
+
+            <div class="chat-container" id="chatContainer">
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <div class="input-box">
+                    <textarea 
+                        class="message-input" 
+                        id="messageInput"
+                        placeholder="Message DeepSeek..."
+                        rows="5"
+                        onkeydown="handleInputKeydown(event)"
+                    ></textarea>
+                    <button class="send-button" onclick="sendMessage()" id="sendButton">
+                        ↑
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentConversation = null;
+        let conversations = [];
+        let availableModels = [];
+
+        async function initializeApp() {
+            try {
+                await loadModels();
+                await loadConversations();
+                
+                if (conversations.length === 0) {
+                    await startNewChat();
+                } else {
+                    await loadConversation(conversations[0].id);
+                }
+                
+                setupEventListeners();
+            } catch (error) {
+                console.error('Error initializing app:', error);
+            }
+        }
+
+        async function loadModels() {
+            try {
+                const response = await puter.ai.models.list();
+                availableModels = response.data;
+                
+                const modelSelect = document.getElementById('modelSelect');
+                modelSelect.innerHTML = '';
+                
+                availableModels.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.id;
+                    option.textContent = model.id;
+                    modelSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading models:', error);
+            }
+        }
+
+        async function loadConversations() {
+            try {
+                conversations = await puter.kv.get('conversations') || [];
+                renderConversationList();
+            } catch (error) {
+                console.error('Error loading conversations:', error);
+            }
+        }
+
+        async function saveConversations() {
+            try {
+                await puter.kv.set('conversations', conversations);
+            } catch (error) {
+                console.error('Error saving conversations:', error);
+            }
+        }
+
+        async function startNewChat() {
+            const newConversation = {
+                id: Date.now().toString(),
+                title: 'New Chat',
+                messages: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            conversations.unshift(newConversation);
+            await saveConversations();
+            await loadConversation(newConversation.id);
+            renderConversationList();
+            
+            document.getElementById('messageInput').focus();
+        }
+
+        async function loadConversation(conversationId) {
+            currentConversation = conversations.find(conv => conv.id === conversationId);
+            if (!currentConversation) return;
+            
+            renderChatMessages();
+            renderConversationList();
+            
+            if (currentConversation.title === 'New Chat' && currentConversation.messages.length > 0) {
+                const firstMessage = currentConversation.messages[0];
+                if (firstMessage.role === 'user') {
+                    currentConversation.title = firstMessage.content.substring(0, 30) + (firstMessage.content.length > 30 ? '...' : '');
+                    await saveConversations();
+                    renderConversationList();
+                }
+            }
+        }
+
+        function renderConversationList() {
+            const listElement = document.getElementById('conversationList');
+            listElement.innerHTML = '';
+            
+            conversations.forEach(conversation => {
+                const item = document.createElement('div');
+                item.className = `conversation-item ${currentConversation?.id === conversation.id ? 'active' : ''}`;
+                item.textContent = conversation.title;
+                item.onclick = () => loadConversation(conversation.id);
+                listElement.appendChild(item);
+            });
+        }
+
+        function renderChatMessages() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.innerHTML = '';
+            
+            if (!currentConversation || currentConversation.messages.length === 0) {
+                const welcomeMessage = document.createElement('div');
+                welcomeMessage.style.textAlign = 'center';
+                welcomeMessage.style.padding = '40px 20px';
+                welcomeMessage.style.color = 'var(--text-secondary)';
+                welcomeMessage.innerHTML = `
+                    <h3>Welcome to DeepSeek-like Chat</h3>
+                    <p>Start a conversation by typing a message below.</p>
+                `;
+                chatContainer.appendChild(welcomeMessage);
+                return;
+            }
+            
+            currentConversation.messages.forEach(message => {
+                const messageElement = createMessageElement(message);
+                chatContainer.appendChild(messageElement);
+            });
+            
+            scrollToBottom();
+        }
+
+        function createMessageElement(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.role}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = message.role === 'user' ? 'Y' : 'AI';
+            
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            content.innerHTML = formatMessageContent(message.content);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(content);
+            
+            return messageDiv;
+        }
+
+        function formatMessageContent(content) {
+            return content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code>$1</code>')
+                .replace(/\n/g, '<br>');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            input.value = '';
+            adjustTextareaHeight(input);
+            
+            const userMessage = {
+                role: 'user',
+                content: message,
+                timestamp: new Date().toISOString()
+            };
+            
+            currentConversation.messages.push(userMessage);
+            renderChatMessages();
+            
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.style.display = 'block';
+            scrollToBottom();
+            
+            try {
+                const selectedModel = document.getElementById('modelSelect').value;
+                
+                const stream = await puter.ai.chat(message, {
+                    model: selectedModel,
+                    stream: true
+                });
+                
+                const assistantMessage = {
+                    role: 'assistant',
+                    content: '',
+                    timestamp: new Date().toISOString()
+                };
+                
+                currentConversation.messages.push(assistantMessage);
+                
+                let fullContent = '';
+                for await (const chunk of stream) {
+                    const content = chunk?.text || '';
+                    if (content) {
+                        fullContent += content;
+                        assistantMessage.content = fullContent;
+                        
+                        const chatContainer = document.getElementById('chatContainer');
+                        const lastMessage = chatContainer.lastChild;
+                        if (lastMessage && lastMessage.classList.contains('assistant')) {
+                            lastMessage.querySelector('.message-content').innerHTML = formatMessageContent(fullContent);
+                        } else {
+                            renderChatMessages();
+                        }
+                        
+                        scrollToBottom();
+                    }
+                }
+                
+                await saveConversations();
+                renderConversationList();
+                
+            } catch (error) {
+                console.error('Error sending message:', error);
+                
+                const errorMessage = {
+                    role: 'assistant',
+                    content: 'Error: ' + (error.message || 'Please try again.'),
+                    timestamp: new Date().toISOString(),
+                    isError: true
+                };
+                
+                currentConversation.messages.push(errorMessage);
+                renderChatMessages();
+            } finally {
+                typingIndicator.style.display = 'none';
+            }
+        }
+
+        function handleInputKeydown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+            
+            setTimeout(() => adjustTextareaHeight(event.target), 0);
+        }
+
+        function adjustTextareaHeight(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 300) + 'px';
+        }
+
+        function scrollToBottom() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function setupEventListeners() {
+            const input = document.getElementById('messageInput');
+            
+            input.addEventListener('input', () => {
+                const sendButton = document.getElementById('sendButton');
+                sendButton.disabled = !input.value.trim();
+            });
+            
+            document.getElementById('sendButton').disabled = true;
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
